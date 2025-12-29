@@ -2,36 +2,29 @@
   'use strict';
 
   // Wait for the page to be fully loaded
-  function embedBuddy() {
-    // Try to find the main game container
-    // Based on the actual NYT Spelling Bee page structure
-    const possibleSelectors = [
-      '#js-hook-game-wrapper',      // Main game wrapper
-      '.pz-game-wrapper',            // Alternative game wrapper class
-      '.pz-game-screen',             // Game screen when loaded
-      '#spelling-bee-container',     // Outer container
-      '.pz-section'                  // Section container
-    ];
+  async function embedBuddy() {
+    // Wait for container
+    let checkCount = 0;
+    await new Promise((resolve) => {
+      const checkContainer = () => {
+        checkCount++;
+        const hasContainer = document.querySelector('#js-hook-game-wrapper');
 
-    let gameContainer = null;
-    for (const selector of possibleSelectors) {
-      gameContainer = document.querySelector(selector);
-      if (gameContainer) {
-        console.log('[Spelling Bee Buddy] Found game container with selector:', selector);
-        break;
-      }
-    }
+        if (checkCount === 1 || checkCount % 100 === 0) {
+          console.log(`[Spelling Bee Buddy] Waiting for container... (attempt ${checkCount})`);
+        }
 
-    // If we can't find a specific container, try to find the main content area
-    if (!gameContainer) {
-      gameContainer = document.querySelector('.pz-content') || document.querySelector('main');
-      console.log('[Spelling Bee Buddy] Using fallback container');
-    }
+        if (hasContainer) {
+          console.log('[Spelling Bee Buddy] Game container ready');
+          resolve();
+        } else {
+          requestAnimationFrame(checkContainer);
+        }
+      };
+      checkContainer();
+    });
 
-    if (!gameContainer) {
-      console.error('[Spelling Bee Buddy] Could not find a suitable container');
-      return;
-    }
+    const gameContainer = document.querySelector('#js-hook-game-wrapper');
 
     // Check if buddy is already embedded
     if (document.getElementById('spelling-bee-buddy-container')) {
@@ -39,47 +32,45 @@
       return;
     }
 
-    // Extract the game date from the Spelling Bee page
-    function extractGameDate() {
-      try {
-        // Try to find the game date from the page
-        // The game data is usually in a script tag or data attribute
-        const scripts = document.querySelectorAll('script');
-        for (const script of scripts) {
-          const text = script.textContent;
-          // Look for date patterns like "printDate":"2025-12-28" or similar
-          const dateMatch = text.match(/"printDate":\s*"(\d{4}-\d{2}-\d{2})"/);
-          if (dateMatch) {
-            console.log('[Spelling Bee Buddy] Found game date:', dateMatch[1]);
-            return dateMatch[1];
+    // Extract the game date from the page context by injecting a script
+    console.log('[Spelling Bee Buddy] Waiting for gameData...');
+    const gameDate = await new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.textContent = `
+        (function() {
+          const checkInterval = setInterval(() => {
+            if (window.gameData?.today?.printDate) {
+              clearInterval(checkInterval);
+              document.dispatchEvent(new CustomEvent('gameDateExtracted', {
+                detail: { date: window.gameData.today.printDate }
+              }));
+            }
+          }, 50);
+        })();
+      `;
+
+      document.addEventListener('gameDateExtracted', (e) => {
+        const date = e.detail.date;
+        if (date) {
+          console.log('[Spelling Bee Buddy] Found date from window.gameData:', date);
+          resolve(date);
+        } else {
+          // Fallback to URL
+          const urlMatch = window.location.href.match(/\/(\d{4})\/(\d{2})\/(\d{2})\//);
+          if (urlMatch) {
+            const urlDate = `${urlMatch[1]}-${urlMatch[2]}-${urlMatch[3]}`;
+            console.log('[Spelling Bee Buddy] Found date from URL:', urlDate);
+            resolve(urlDate);
+          } else {
+            console.log('[Spelling Bee Buddy] Could not find game date, omitting date parameter');
+            resolve(null);
           }
         }
+      }, { once: true });
 
-        // Fallback: try to get from URL or use today's date
-        const urlMatch = window.location.href.match(/\/(\d{4})\/(\d{2})\/(\d{2})\//);
-        if (urlMatch) {
-          const date = `${urlMatch[1]}-${urlMatch[2]}-${urlMatch[3]}`;
-          console.log('[Spelling Bee Buddy] Found date from URL:', date);
-          return date;
-        }
-
-        // Ultimate fallback: use today's date
-        const today = new Date();
-        const yyyy = today.getFullYear();
-        const mm = String(today.getMonth() + 1).padStart(2, '0');
-        const dd = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${yyyy}-${mm}-${dd}`;
-        console.log('[Spelling Bee Buddy] Using today\'s date as fallback:', todayStr);
-        return todayStr;
-      } catch (e) {
-        console.error('[Spelling Bee Buddy] Error extracting date:', e);
-        // Return today's date as fallback
-        const today = new Date();
-        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-      }
-    }
-
-    const gameDate = extractGameDate();
+      document.documentElement.appendChild(script);
+      script.remove();
+    });
 
     // Create container for the buddy
     const buddyContainer = document.createElement('div');
@@ -95,14 +86,16 @@
     // Create iframe pointing to the full Buddy page with the game date
     const iframe = document.createElement('iframe');
     iframe.id = 'spelling-bee-buddy-iframe';
-    iframe.src = `https://www.nytimes.com/interactive/2023/upshot/spelling-bee-buddy.html?date=${gameDate}`;
+    iframe.src = 'https://www.nytimes.com/interactive/2023/upshot/spelling-bee-buddy.html' + (gameDate ? `?date=${gameDate}` : '');
     iframe.title = 'Spelling Bee Buddy - Grid & Two-Letter List';
     iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
+    // Hide iframe until manipulation is complete
+    iframe.style.visibility = 'hidden';
 
     // Add onload handler to hide unwanted sections and resize iframe
     iframe.onload = function() {
       try {
-        const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+        const iframeDoc = iframe.contentDocument;
 
         console.log('[Spelling Bee Buddy] Iframe loaded with date:', gameDate);
 
@@ -131,6 +124,16 @@
           .sb-buddy-container {
             padding: 0 !important;
             margin: 0 !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 10px !important;
+          }
+
+          /* Make sections flexible and responsive */
+          .the-square,
+          .the-square-part-two {
+            flex: 1 1 300px !important;
+            min-width: 300px !important;
           }
 
           /* Hide header and footer elements */
@@ -149,54 +152,57 @@
 
         // Function to resize iframe to fit content
         function resizeIframe() {
-          try {
-            requestAnimationFrame(() => {
-              const container = iframeDoc.querySelector('.sb-buddy-container');
-              if (container) {
-                const height = container.scrollHeight + 40; // Add some padding
-                iframe.style.height = height + 'px';
-                console.log('[Spelling Bee Buddy] Resized iframe to', height + 'px');
-              }
-            });
-          } catch (e) {
-            console.error('[Spelling Bee Buddy] Could not resize iframe:', e);
-          }
+          requestAnimationFrame(() => {
+            const container = iframeDoc.querySelector('.sb-buddy-container');
+            if (container) {
+              const height = container.scrollHeight + 40; // Add some padding
+              iframe.style.height = height + 'px';
+              console.log('[Spelling Bee Buddy] Resized iframe to', height + 'px');
+            }
+          });
         }
 
         // Watch for when the visible sections are actually rendered
         const targetSections = iframeDoc.querySelectorAll('.the-square, .the-square-part-two');
         if (targetSections.length > 0) {
-          // Use MutationObserver to detect when content is fully loaded
-          const observer = new MutationObserver((mutations, obs) => {
-            // Check if both sections have content
-            const gridSection = iframeDoc.querySelector('.the-square');
-            const twoLetterSection = iframeDoc.querySelector('.the-square-part-two');
-
-            if (gridSection && twoLetterSection &&
-                gridSection.offsetHeight > 0 && twoLetterSection.offsetHeight > 0) {
-              resizeIframe();
-              // Resize again after a brief delay to catch any late-loading content
-              setTimeout(resizeIframe, 100);
-            }
-          });
-
-          // Observe the container for any changes
           const container = iframeDoc.querySelector('.sb-buddy-container');
           if (container) {
-            observer.observe(container, {
-              childList: true,
-              subtree: true,
-              attributes: true,
-              characterData: true
+            // Use MutationObserver only to detect initial content load
+            let initialLoadComplete = false;
+            const observer = new MutationObserver(() => {
+              if (initialLoadComplete) return;
+
+              const gridSection = iframeDoc.querySelector('.the-square');
+              const twoLetterSection = iframeDoc.querySelector('.the-square-part-two');
+
+              if (gridSection && twoLetterSection &&
+                  gridSection.offsetHeight > 0 && twoLetterSection.offsetHeight > 0) {
+                initialLoadComplete = true;
+                observer.disconnect();
+                resizeIframe();
+                // Make iframe visible now that manipulation is complete
+                iframe.style.visibility = 'visible';
+                console.log('[Spelling Bee Buddy] Initial content loaded, MutationObserver disconnected');
+              }
             });
 
-            // Initial resize
+            observer.observe(container, {
+              childList: true,
+              subtree: true
+            });
+
+            // Initial resize attempt
             setTimeout(resizeIframe, 100);
 
-            // Stop observing after content is stable
-            setTimeout(() => observer.disconnect(), 3000);
+            // Fallback: make iframe visible after a timeout if content hasn't loaded yet
+            setTimeout(() => {
+              if (!initialLoadComplete) {
+                iframe.style.visibility = 'visible';
+                console.log('[Spelling Bee Buddy] Made iframe visible via fallback timeout');
+              }
+            }, 2000);
 
-            // Also use ResizeObserver for ongoing changes
+            // Use ResizeObserver for ongoing size changes
             const resizeObserver = new ResizeObserver(resizeIframe);
             resizeObserver.observe(container);
           }
@@ -220,30 +226,6 @@
     console.log('[Spelling Bee Buddy] Embedded successfully');
   }
 
-  // Try to embed immediately
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', embedBuddy);
-  } else {
-    embedBuddy();
-  }
-
-  // Also observe for dynamic content loading (NYT uses React)
-  const observer = new MutationObserver((mutations) => {
-    // Only try once every few seconds to avoid performance issues
-    if (!window.buddyEmbedAttempted) {
-      window.buddyEmbedAttempted = true;
-      setTimeout(() => {
-        embedBuddy();
-        window.buddyEmbedAttempted = false;
-      }, 2000);
-    }
-  });
-
-  observer.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
-
-  // Stop observing after 30 seconds to avoid unnecessary processing
-  setTimeout(() => observer.disconnect(), 30000);
+  // Start the embedding process
+  embedBuddy();
 })();

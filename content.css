@@ -42,8 +42,4 @@
   .buddy-header h3 {
     font-size: 20px;
   }
-
-  #spelling-bee-buddy-iframe {
-    /* Height set dynamically by JavaScript */
-  }
 }
