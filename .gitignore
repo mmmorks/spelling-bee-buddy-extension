@@ -1,0 +1,24 @@
+# Build outputs
+*.xpi
+*.zip
+web-ext-artifacts/
+
+# macOS
+.DS_Store
+._*
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Temporary files
+*.tmp
+.cache/

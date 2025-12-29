@@ -1,0 +1,49 @@
+#spelling-bee-buddy-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+  box-sizing: border-box;
+  background-color: #f7f7f7;
+  border-radius: 8px;
+}
+
+.buddy-header {
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #ddd;
+}
+
+.buddy-header h3 {
+  margin: 0;
+  font-family: 'nyt-karnak', georgia, 'times new roman', times, serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #333;
+}
+
+#spelling-bee-buddy-iframe {
+  width: 100%;
+  border: none;
+  border-radius: 4px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: block;
+  overflow: hidden;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  #spelling-bee-buddy-container {
+    padding: 15px 10px;
+    margin: 20px auto;
+  }
+
+  .buddy-header h3 {
+    font-size: 20px;
+  }
+
+  #spelling-bee-buddy-iframe {
+    /* Height set dynamically by JavaScript */
+  }
+}
