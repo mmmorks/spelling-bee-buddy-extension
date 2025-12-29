@@ -26,6 +26,8 @@ zip -r "${EXTENSION_NAME}.xpi" \
   -x "*.DS_Store" \
   -x "icons/.DS_Store" \
   -x "icons/README.md" \
+  -x "icons/icon.svg" \
+  -x "icons/generate_icons.sh" \
   -x "__MACOSX/*" \
   2>/dev/null || true
 

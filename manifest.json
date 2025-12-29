@@ -1,14 +1,15 @@
 {
   "manifest_version": 2,
   "name": "NYT Spelling Bee Buddy Embedder",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Embeds the Grid and Two-Letter List from NYT Spelling Bee Buddy directly into the Spelling Bee game page for convenient reference while playing.",
   "author": "mmmorks",
   "homepage_url": "https://github.com/mmmorks/spelling-bee-buddy-extension",
 
   "icons": {
     "48": "icons/icon-48.png",
-    "96": "icons/icon-96.png"
+    "96": "icons/icon-96.png",
+    "128": "icons/icon-128.png"
   },
 
   "content_scripts": [
