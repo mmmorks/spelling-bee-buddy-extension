@@ -30,14 +30,24 @@
     });
   }
 
-  function createBuddyContainer() {
+  function createBuddyContainer(gameDate) {
     const container = document.createElement('div');
     container.id = 'spelling-bee-buddy-container';
     container.className = 'pz-section';
 
     const header = document.createElement('div');
     header.className = 'buddy-header';
-    header.innerHTML = '<h3>Spelling Bee Buddy</h3>';
+
+    const link = document.createElement('a');
+    link.href = BUDDY_URL + (gameDate ? `?date=${gameDate}` : '');
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Spelling Bee Buddy';
+
+    const heading = document.createElement('h3');
+    heading.appendChild(link);
+
+    header.appendChild(heading);
     container.appendChild(header);
 
     return container;
@@ -101,7 +111,7 @@
       return;
     }
 
-    const buddyContainer = createBuddyContainer();
+    const buddyContainer = createBuddyContainer(gameDate);
     const iframe = createBuddyIframe(gameDate);
 
     setupIframeContent(iframe);

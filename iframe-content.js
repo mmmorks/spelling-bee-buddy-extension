@@ -1,6 +1,10 @@
 (function() {
   'use strict';
 
+  if (window.self === window.top) {
+    return;
+  }
+
   const {
     NYT_BUDDY_CONTAINER_SELECTOR,
     NYT_GRID_SECTION_SELECTOR,
