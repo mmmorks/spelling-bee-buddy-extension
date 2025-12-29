@@ -20,6 +20,7 @@ rm -f "${EXTENSION_NAME}.zip"
 echo "Creating Firefox package..."
 zip -r "${EXTENSION_NAME}-firefox.xpi" \
   manifest.json \
+  constants.js \
   content.js \
   content.css \
   icons/ \
@@ -39,6 +40,7 @@ echo "✓ Created ${EXTENSION_NAME}-firefox.xpi"
 echo "Creating Chrome package..."
 zip -r "${EXTENSION_NAME}-chrome.zip" \
   manifest.json \
+  constants.js \
   content.js \
   content.css \
   icons/ \
