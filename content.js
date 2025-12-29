@@ -16,13 +16,12 @@
     IFRAME_HEIGHT_PADDING
   } = window.SPELLING_BEE_CONSTANTS || {};
 
-  function isValidGamePage(url) {
-    return /\/spelling-bee\/?$/.test(url) || /\/spelling-bee\/\d{4}-\d{2}-\d{2}/.test(url);
-  }
-
-  function extractGameDate(url) {
-    const urlMatch = url.match(/\/spelling-bee\/(\d{4}-\d{2}-\d{2})/);
-    return urlMatch ? urlMatch[1] : null;
+  function parseGameUrl(url) {
+    const match = url.match(/\/spelling-bee(?:\/(\d{4}-\d{2}-\d{2})|\/?$)/);
+    return {
+      isValid: match !== null,
+      gameDate: match?.[1] || null
+    };
   }
 
   function waitForGameContainer() {
@@ -197,13 +196,12 @@
 
   async function embedBuddy() {
     const url = window.location.href;
+    const { isValid, gameDate } = parseGameUrl(url);
 
-    if (!isValidGamePage(url)) {
+    if (!isValid) {
       console.log('[Spelling Bee Buddy] Not a game page, skipping');
       return;
     }
-
-    const gameDate = extractGameDate(url);
 
     if (gameDate) {
       console.log('[Spelling Bee Buddy] Detected game page with date:', gameDate);
