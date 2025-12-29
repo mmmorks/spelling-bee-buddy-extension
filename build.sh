@@ -22,6 +22,7 @@ zip -r "${EXTENSION_NAME}-firefox.xpi" \
   manifest.json \
   constants.js \
   content.js \
+  iframe-content.js \
   content.css \
   icons/ \
   LICENSE \
@@ -42,6 +43,7 @@ zip -r "${EXTENSION_NAME}-chrome.zip" \
   manifest.json \
   constants.js \
   content.js \
+  iframe-content.js \
   content.css \
   icons/ \
   LICENSE \

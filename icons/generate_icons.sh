@@ -25,6 +25,12 @@ fi
 
 # Generate icons with transparent backgrounds
 # Note: -background must come BEFORE reading the SVG file
+echo "  Generating icon-16.png..."
+magick -background none icon.svg -resize 16x16 icon-16.png
+
+echo "  Generating icon-32.png..."
+magick -background none icon.svg -resize 32x32 icon-32.png
+
 echo "  Generating icon-48.png..."
 magick -background none icon.svg -resize 48x48 icon-48.png
 
