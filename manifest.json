@@ -20,6 +20,13 @@
       "js": ["constants.js", "content.js"],
       "css": ["content.css"],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://www.nytimes.com/interactive/*/upshot/spelling-bee-buddy.html*"],
+      "js": ["iframe-content.js"],
+      "css": ["iframe-content.css"],
+      "run_at": "document_idle",
+      "all_frames": true
     }
   ],
 
