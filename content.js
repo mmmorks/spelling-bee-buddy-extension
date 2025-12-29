@@ -1,18 +1,11 @@
 (function() {
   'use strict';
 
-  // Import constants
   const {
     FALLBACK_VISIBILITY_TIMEOUT,
     BUDDY_URL,
     NYT_GAME_WRAPPER_SELECTOR
-  } = window.SPELLING_BEE_CONSTANTS || {};
-
-  // Validate that constants loaded successfully
-  if (!window.SPELLING_BEE_CONSTANTS) {
-    console.error('[Spelling Bee Buddy] Failed to load constants - extension will not run');
-    return;
-  }
+  } = window.SPELLING_BEE_CONSTANTS;
 
   function parseGameUrl(url) {
     const match = url.match(/\/spelling-bee(?:\/(\d{4}-\d{2}-\d{2})|\/?$)/);
@@ -60,28 +53,19 @@
   }
 
 
-  function setupIframeVisibility(iframe) {
-    // Make iframe visible after fallback timeout
-    setTimeout(() => {
-      iframe.style.visibility = 'visible';
-    }, FALLBACK_VISIBILITY_TIMEOUT);
-  }
-
   function setupIframeContent(iframe) {
-    // Listen for height messages from the iframe
-    window.addEventListener('message', function(event) {
+    window.addEventListener('message', (event) => {
       if (event.origin !== 'https://www.nytimes.com') return;
       if (event.data && event.data.type === 'spelling-bee-buddy-resize') {
         iframe.style.height = event.data.height + 'px';
       }
     });
 
-    iframe.onload = function() {
-      // Iframe loaded successfully, styles are injected by iframe-content.js
+    iframe.onload = () => {
       iframe.style.visibility = 'visible';
     };
 
-    iframe.onerror = function() {
+    iframe.onerror = () => {
       console.error('[Spelling Bee Buddy] Failed to load content. Please check your internet connection and refresh the page.');
       iframe.style.display = 'none';
       const container = document.getElementById('spelling-bee-buddy-container');
@@ -94,16 +78,13 @@
       }
     };
 
-    // Fallback in case onload doesn't fire quickly
-    setupIframeVisibility(iframe);
+    setTimeout(() => {
+      iframe.style.visibility = 'visible';
+    }, FALLBACK_VISIBILITY_TIMEOUT);
   }
 
   function insertBuddyAfterGame(buddyContainer, gameContainer) {
-    if (gameContainer.nextSibling) {
-      gameContainer.parentNode.insertBefore(buddyContainer, gameContainer.nextSibling);
-    } else {
-      gameContainer.parentNode.appendChild(buddyContainer);
-    }
+    gameContainer.insertAdjacentElement('afterend', buddyContainer);
   }
 
   async function embedBuddy() {

@@ -1,21 +1,14 @@
-// Timing Constants (milliseconds)
 const FALLBACK_VISIBILITY_TIMEOUT = 2000;
-
-// NYT Spelling Bee Buddy URL
 const BUDDY_URL = 'https://www.nytimes.com/interactive/2023/upshot/spelling-bee-buddy.html';
 
-// NYT page selectors (external to our extension - these matter for maintainability)
 const NYT_GAME_WRAPPER_SELECTOR = '#js-hook-game-wrapper';
 const NYT_BUDDY_CONTAINER_SELECTOR = '.sb-buddy-container';
 const NYT_GRID_SECTION_SELECTOR = '.the-square';
 const NYT_TWO_LETTER_LIST_SELECTOR = '.the-square-part-two';
 
-// Layout constants
 const MIN_SECTION_WIDTH = 300;
 const SECTION_GAP = 10;
 const IFRAME_HEIGHT_PADDING = 40;
-
-// Export all constants for browser extension context
 window.SPELLING_BEE_CONSTANTS = {
   FALLBACK_VISIBILITY_TIMEOUT,
   BUDDY_URL,

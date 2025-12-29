@@ -23,8 +23,7 @@
     },
     {
       "matches": ["https://www.nytimes.com/interactive/*/upshot/spelling-bee-buddy.html*"],
-      "js": ["iframe-content.js"],
-      "css": ["iframe-content.css"],
+      "js": ["constants.js", "iframe-content.js"],
       "run_at": "document_idle",
       "all_frames": true
     }
