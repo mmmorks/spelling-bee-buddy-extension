@@ -39,6 +39,48 @@
       return;
     }
 
+    // Extract the game date from the Spelling Bee page
+    function extractGameDate() {
+      try {
+        // Try to find the game date from the page
+        // The game data is usually in a script tag or data attribute
+        const scripts = document.querySelectorAll('script');
+        for (const script of scripts) {
+          const text = script.textContent;
+          // Look for date patterns like "printDate":"2025-12-28" or similar
+          const dateMatch = text.match(/"printDate":\s*"(\d{4}-\d{2}-\d{2})"/);
+          if (dateMatch) {
+            console.log('[Spelling Bee Buddy] Found game date:', dateMatch[1]);
+            return dateMatch[1];
+          }
+        }
+
+        // Fallback: try to get from URL or use today's date
+        const urlMatch = window.location.href.match(/\/(\d{4})\/(\d{2})\/(\d{2})\//);
+        if (urlMatch) {
+          const date = `${urlMatch[1]}-${urlMatch[2]}-${urlMatch[3]}`;
+          console.log('[Spelling Bee Buddy] Found date from URL:', date);
+          return date;
+        }
+
+        // Ultimate fallback: use today's date
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+        console.log('[Spelling Bee Buddy] Using today\'s date as fallback:', todayStr);
+        return todayStr;
+      } catch (e) {
+        console.error('[Spelling Bee Buddy] Error extracting date:', e);
+        // Return today's date as fallback
+        const today = new Date();
+        return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+      }
+    }
+
+    const gameDate = extractGameDate();
+
     // Create container for the buddy
     const buddyContainer = document.createElement('div');
     buddyContainer.id = 'spelling-bee-buddy-container';
@@ -50,10 +92,10 @@
     header.innerHTML = '<h3>Spelling Bee Buddy</h3>';
     buddyContainer.appendChild(header);
 
-    // Create iframe pointing to the full Buddy page
+    // Create iframe pointing to the full Buddy page with the game date
     const iframe = document.createElement('iframe');
     iframe.id = 'spelling-bee-buddy-iframe';
-    iframe.src = 'https://www.nytimes.com/interactive/2023/upshot/spelling-bee-buddy.html';
+    iframe.src = `https://www.nytimes.com/interactive/2023/upshot/spelling-bee-buddy.html?date=${gameDate}`;
     iframe.title = 'Spelling Bee Buddy - Grid & Two-Letter List';
     iframe.setAttribute('sandbox', 'allow-same-origin allow-scripts');
 
@@ -61,6 +103,8 @@
     iframe.onload = function() {
       try {
         const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+        console.log('[Spelling Bee Buddy] Iframe loaded with date:', gameDate);
 
         // Create style element to hide unwanted sections
         const style = iframeDoc.createElement('style');
