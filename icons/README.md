@@ -1,22 +1,42 @@
 # Icons
 
-This directory should contain icon files for the extension.
+This directory contains icon files for the extension in multiple sizes.
 
-## Required Icons:
+## Icon Files
 
-- `icon-48.png` - 48x48 pixels (for Firefox add-ons manager)
-- `icon-96.png` - 96x96 pixels (for high-DPI displays)
+- `icon.svg` - Source SVG file (vector format)
+- `icon-16.png` - 16x16 pixels (browser toolbar, small displays)
+- `icon-32.png` - 32x32 pixels (browser toolbar, retina displays)
+- `icon-48.png` - 48x48 pixels (add-ons manager, permissions dialog)
+- `icon-96.png` - 96x96 pixels (high-DPI displays, add-ons manager)
+- `icon-128.png` - 128x128 pixels (Chrome Web Store, large displays)
 
-## Creating Icons:
+## Generating Icons
 
-You can create simple bee-themed icons using any image editor. Suggested design:
-- Yellow/black color scheme (representing a bee)
-- Simple hexagon or bee icon
-- Clear and recognizable at small sizes
+To regenerate all PNG icons from the source SVG:
 
-You can use free tools like:
-- Canva (https://www.canva.com/)
-- GIMP (https://www.gimp.org/)
-- Or generate with AI tools
+```bash
+cd icons
+./generate_icons.sh
+```
 
-For now, the extension will work without icons, but they're recommended for a professional appearance.
+**Requirements:**
+- ImageMagick must be installed
+- On macOS: `brew install imagemagick`
+- On Linux: `sudo apt-get install imagemagick` or equivalent
+
+## Icon Design
+
+The current icon features:
+- Yellow/gold color scheme (representing a bee and honeycomb)
+- Hexagonal honeycomb pattern
+- Simple and recognizable at all sizes
+- Transparent background for flexibility
+
+## Creating Custom Icons
+
+If you want to create your own icon design:
+
+1. Edit `icon.svg` with your favorite vector editor (Inkscape, Illustrator, etc.)
+2. Run `./generate_icons.sh` to generate all PNG sizes
+3. The build script automatically includes all icon files in the extension packages
