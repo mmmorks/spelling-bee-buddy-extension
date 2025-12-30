@@ -1,6 +1,6 @@
 # NYT Spelling Bee Buddy Embedder
 
-A Firefox extension that embeds the Grid and Two-Letter List from the NYT Spelling Bee Buddy directly into the Spelling Bee game page for easy reference while playing.
+A browser extension for Firefox and Chrome that embeds the Grid and Two-Letter List from the NYT Spelling Bee Buddy directly into the Spelling Bee game page for easy reference while playing.
 
 ## Features
 
@@ -13,7 +13,9 @@ A Firefox extension that embeds the Grid and Two-Letter List from the NYT Spelli
 
 ## Installation
 
-### Quick Start (Temporary - Recommended for Testing)
+### Firefox
+
+#### Quick Start (Temporary - Recommended for Testing)
 
 1. Clone or download this repository:
    ```bash
@@ -28,36 +30,31 @@ A Firefox extension that embeds the Grid and Two-Letter List from the NYT Spelli
 
 > **Note**: Temporary installations are removed when Firefox restarts. This is perfect for testing and personal use.
 
-### Permanent Installation Options
-
-#### Option 1: Firefox Developer Edition (Recommended)
-1. Download [Firefox Developer Edition](https://www.mozilla.org/en-US/firefox/developer/)
-2. Follow the Quick Start steps above
-3. The extension persists across restarts in Developer Edition
-
-#### Option 2: Build as XPI (For Distribution)
+#### Build and Install XPI Package
 ```bash
 # From the extension directory
 ./build.sh
 ```
-This creates a `spelling-bee-buddy-extension.xpi` file you can:
-- Install in Firefox Developer Edition permanently
-- Share with others
-- Submit to Mozilla Add-ons (requires signing)
+This creates `spelling-bee-buddy-extension-firefox.xpi` which you can:
+- Install in Firefox (requires signing or Developer Edition)
+- Submit to Mozilla Add-ons for distribution
 
-#### Option 3: Disable Signature Verification (Not Recommended)
-For personal use only, this reduces browser security:
-1. Open Firefox → `about:config`
-2. Search for `xpinstall.signatures.required`
-3. Set to `false`
-4. Install the `.xpi` file by dragging it into Firefox
+See [INSTALLATION.md](INSTALLATION.md) for detailed Firefox installation options.
 
-### Publishing to Mozilla Add-ons
+### Chrome
 
-To make this available publicly:
-1. Create an account at [addons.mozilla.org](https://addons.mozilla.org/)
-2. Submit the extension for review
-3. Once approved, users can install with one click
+1. Clone or download this repository (same as Firefox steps above)
+2. Run the build script:
+   ```bash
+   ./build.sh
+   ```
+3. Open Chrome and navigate to `chrome://extensions/`
+4. Enable **"Developer mode"** (toggle in top-right)
+5. Click **"Load unpacked"**
+6. Select the extension directory
+7. Visit [NYT Spelling Bee](https://www.nytimes.com/puzzles/spelling-bee)
+
+For Chrome Web Store distribution, use the generated `spelling-bee-buddy-extension-chrome.zip` file.
 
 ## Usage
 
@@ -98,11 +95,16 @@ If the buddy doesn't appear in the right location, you may need to adjust the se
 ```
 spelling-bee-buddy-extension/
 ├── manifest.json          # Extension configuration and metadata
-├── content.js            # Main script that embeds and customizes the buddy
+├── constants.js          # Shared constants used across scripts
+├── content.js            # Main script for the Spelling Bee page
+├── iframe-content.js     # Script for the embedded Buddy iframe
 ├── content.css           # Styling for the embedded container
-├── icons/                # Extension icons (48px and 96px)
-│   └── README.md        # Instructions for creating icons
-├── build.sh             # Build script to create .xpi package
+├── icons/                # Extension icons (16, 32, 48, 96, 128px)
+│   ├── icon.svg         # Source SVG file
+│   ├── generate_icons.sh # Script to generate PNG icons from SVG
+│   └── README.md        # Icon documentation
+├── build.sh             # Build script to create .xpi and .zip packages
+├── INSTALLATION.md      # Detailed installation guide
 ├── .gitignore           # Git ignore file
 ├── LICENSE              # MIT License
 └── README.md            # This file
